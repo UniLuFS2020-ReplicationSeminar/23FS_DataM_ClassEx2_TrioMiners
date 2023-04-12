@@ -10,19 +10,23 @@ base_url <- "https://content.guardianapis.com/search"
 
 # Construct a list of query parameters
 query_params <- list(
-  q = "climate change",
-  "query-fields" = "headline",
-  "from-date" = "2020-01-01",
-  "to-date" = "2020-01-31",
-  "show-fields" = "body"
+  q = "artificial intelligence",
+  "from-date" = "2023-01-01",
+  "to-date" = "2023-03-31",
+  "show-fields" = "body",
+  "page-size" = 10,
+  "show-blocks" = "body",
+  "api-key" = my_api_key
   
 )
+
 
 # Construct the request header with the API key
 headers <- c("api-key" = my_api_key)
 
 # Send the request to the API and get the response
-g_response <- httr::GET(base_url, query_params, add_headers(.headers=headers))
+g_response <- httr::GET(base_url, add_headers(.headers=headers), 
+                        query = query_params)
 
 # Check status of response
 http_status(g_response)
@@ -32,7 +36,7 @@ content <- content(g_response, as = "parsed")
 content <- content$response$results
 content <- content[[1]]
 content$webTitle
-article_link <- content$webUrl
+content$fields$body
 
 
 
