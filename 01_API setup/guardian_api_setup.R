@@ -1,6 +1,6 @@
 library(httr)
 library(jsonlite)
-
+library(rstudioapi)
 
 # Pass API key into environment object
 my_api_key <- askForPassword()
