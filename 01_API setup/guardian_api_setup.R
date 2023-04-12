@@ -8,16 +8,19 @@ my_api_key <- askForPassword()
 # Construct the base URL for the API endpoint
 base_url <- "https://content.guardianapis.com/search"
 
+# loop through response pages
+articles_df <- data.frame()
+for (x in 1:7) {
+
 # Construct a list of query parameters
 query_params <- list(
-  q = "artificial intelligence",
-  "from-date" = "2023-01-01",
-  "to-date" = "2023-03-31",
+  q = '"artificial intelligence"',
+  "from-date" = "2022-09-01",
+  "to-date" = "2023-04-11",
   "show-fields" = "body",
-  "page-size" = 10,
-  "show-blocks" = "body",
-  "api-key" = my_api_key
-  
+  "page" = x,
+  "page-size" = 50,
+  "show-blocks" = "body"
 )
 
 
@@ -34,12 +37,22 @@ http_status(g_response)
 # Extract the content of the response 
 content <- content(g_response, as = "parsed")
 content <- content$response$results
-content <- content[[1]]
-content$webTitle
-content$fields$body
 
+# empty matrix to be filled with content data
+articles <- matrix(nrow = 50, ncol = 3, byrow = T)
 
+# loop through contents list and storing date, headline, text
+for (i in 1:length(content)) {
+  ext_content <- content[[i]]
+  articles[i,] <- c(ext_content$webPublicationDate,
+               ext_content$webTitle,
+               ext_content$fields$body)
+}
 
+# appending data from every new page from response
+articles_df <- rbind(articles_df, articles)
+
+}
 
 
 
