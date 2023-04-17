@@ -56,7 +56,7 @@ articles_df <- rbind(articles_df, articles)
 }
 
 # export data
-save(articles_df, file = here("02_Data", "AI_articles_guardian.RData"))
+save(articles_df, file = here("AI_articles_guardian.RData"))
 
 
 
