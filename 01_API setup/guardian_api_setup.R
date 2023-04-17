@@ -1,6 +1,7 @@
 library(httr)
 library(jsonlite)
 library(rstudioapi)
+library(here)
 
 # Pass API key into environment object
 my_api_key <- askForPassword()
@@ -16,7 +17,7 @@ for (x in 1:7) {
 query_params <- list(
   q = '"artificial intelligence"',
   "from-date" = "2022-09-01",
-  "to-date" = "2023-04-11",
+  "to-date" = "2023-04-17",
   "show-fields" = "body",
   "page" = x,
   "page-size" = 50,
@@ -54,6 +55,8 @@ articles_df <- rbind(articles_df, articles)
 
 }
 
+# export data
+save(articles_df, file = here("02_Data", "AI_articles_guardian.RData"))
 
 
 
