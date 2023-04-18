@@ -58,7 +58,8 @@ articles_df <- rbind(articles_df, articles)
 # export data
 save(articles_df, file = here("AI_articles_guardian.RData"))
 
-
+# thanks to Julien
+# not much to add here; great commenting! srf will be lucky to have you 🤩
 
 
 
