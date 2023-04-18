@@ -9,17 +9,15 @@ load(here("AI_articles_guardian.RData"))
 
 # cleaning data (removing html tags using regexpr)
 articles_df <- articles_df %>% 
-  mutate(V3 = gsub("<.*?>", "", V3))
-
-
+  mutate(V3 = gsub("<.*?>", "", V3)) %>% 
+  mutate(V3 = if_else(is.na(V3), "MISSING_TEXT", V3)) # Na hanlding
 
 # create corpus and inspect it
-
 myCorpus <- corpus(articles_df, text_field = "V3")
-
 myCorpus <- corpus(myCorpus, docvars = select(articles_df, V1:V2))
 
 head(summary(myCorpus))
+summary(myCorpus)
 
 # tokenize text and remove noise
 
