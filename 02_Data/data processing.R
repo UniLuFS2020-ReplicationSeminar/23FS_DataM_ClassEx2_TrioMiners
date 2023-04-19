@@ -32,7 +32,7 @@ any_empty_strings
 
 # create corpus and inspect it
 myCorpus <- corpus(articles_df[1:200,], text_field = "V3") # include only 200 most relevant articles
-myCorpus <- corpus(myCorpus, docvars = select(articles_df[1:200,], V1:V2))
+myCorpus <- corpus(myCorpus, docvars = select(articles_df[1:200,], V1:V3))
 
 myCorpus
 
