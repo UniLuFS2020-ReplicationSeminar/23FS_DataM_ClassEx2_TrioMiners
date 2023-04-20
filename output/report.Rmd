@@ -15,4 +15,6 @@ Our goal is
 1) To show how sentiment towards AI has shifted in press outlets from September 2022 to April 2023
 2) To show how the frequency of press coverage of AI has changed over that same time period
 ## 2. Methods
-We set out to answer these questions by doing a frequency analysis. 
+We set out to answer these two questions by first doing a sentiment analysis and secondly by doing a frequency analysis.
+But how do we get there?
+First, 
