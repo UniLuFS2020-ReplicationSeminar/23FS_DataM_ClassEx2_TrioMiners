@@ -1,0 +1,72 @@
+---
+  title: "Data Mining in R FS23: Version Control 2"
+output: html_document
+---
+```{r}
+library(here)
+library(quanteda)
+library(quanteda.textplots)
+library(tidyverse)
+```
+
+# Class Exercise 2
+
+## 1. Introduction
+Because of AI recently emerging as a easy accessible tool for everday tasks and thus being a hot topic in society for the last few months, we analyze the press coverage about artificial intelligence from September 2022 to April 2023. We address the questions like "Does the press emphasize more on potential chances or threats of AI/ChatGPT?" or "Does the coverage with time get more negative towards AI?".
+
+Our goal is 
+1) To show how sentiment towards AI has shifted in press outlets from September 2022 to April 2023
+2) To show how the frequency of press coverage of AI has changed over that same time period
+
+## 2. Method
+We set out to answer these two questions by first doing a sentiment analysis and secondly by doing a frequency analysis.
+But how do we get there?
+First, we register for the Guardian API in order to receive an API Key. Next we have to prepare our API Setup, so that we may import the raw data from the API. We set the parameters according to which the extraction should be done. Multiple Loops and extractions take place, resulting in several data and value lists in the R environment.
+In step two or rather the second script "data processing", we check for missing values, clean the data, create a corpus and inspect it. The corpus only includes the 200 most relevant articles. After we tokenize the text and remove noise. Once all this preprocessing of data is done, we can export the data and move on to the final step the text analysis.
+In our first task, the sentiment analysis, we use the SenitmentAnalysis package. The Sentiment score is defined as the difference between positive and negative word counts divided by the sum of positive and negative words. We group the scores by week and calculate the mean.
+Four our second task we simply count the articles over the time period that we are looking at.
+
+## 3. Results
+A word clout gives us a first impression of which words appear most in the texts that talk about AI.
+```{r}
+# word cloud
+set.seed(100)
+textplot_wordcloud(trimdfm, min_count = 100, 
+                   color = c('red', 'pink', 'green', 'purple', 'orange', 'blue'))
+```
+We can also see this in the form of frequency bars.
+```{r}
+# frequency bars
+library("quanteda.textstats")
+
+ggplot(features_dfm, aes(x = feature, y = frequency)) +
+  geom_col(fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Corpus Top 100 features",
+       x = "Feature",
+       y = "Frequency")
+
+```
+This shows us, that a few relevant key words, such as "ai" and "chatgpt" appear more often than others, but doesn't tell us much else.
+For our goals more relevant are the "sentiment over time" and the "number of articles over time" plot.
+```{r}
+library(here)
+library(tidyverse)
+library(quanteda)
+library(SentimentAnalysis)
+library(ggExtra)
+# plot sentiment over time
+ggplot(mean_sentiment) +
+  geom_col(mapping = aes(x=week_num,y=mean_sent), fill = "steelblue") +
+  labs(title = "Sentiment of Coverage about AI from September 2022 to April 2023",
+       x = "Week code",
+       y = "Sentiment Score")
+```
+```{r}
+# plot number of articles over time
+plotCount(table_count, fill = "steelblue") +
+  labs(title = "Frequency of Coverage about AI from September 2022 to April 2023",
+       x = "Week code",
+       y = "Number of Articles")
+```
+From the first plot we can infer that overall sentiment of press coverage towards AI is positive with a few exceptions. And the second plot shows the AI topic got persistently more and more press coverage.
