@@ -58,7 +58,7 @@ topfeatures(trimdfm, n=20, decreasing = TRUE)
 
 # word cloud
 set.seed(100)
-textplot_wordcloud(trimdfm, min_count = 100, 
+Wordplot <- textplot_wordcloud(trimdfm, min_count = 100, 
                    color = c('red', 'pink', 'green', 'purple', 'orange', 'blue'))
 
 # frequency bars

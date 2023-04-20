@@ -1,5 +1,5 @@
 ---
-  title: "Data Mining in R FS23: Version Control 2"
+title: "Data Mining in R FS23: Version Control 2"
 output: html_document
 ---
 ```{r}
@@ -33,6 +33,44 @@ Four our second task we simply count the articles over the time period that we a
 ## 3. Results
 A word clout gives us a first impression of which words appear most in the texts that talk about AI.
 ```{r}
+#load data
+load(here("AI_articles_guardian.RData"))
+# check for missing values and empty string + cleaning
+any(is.na(articles_df))
+any_empty_strings <- any(apply(articles_df, 1, function(x) any(nchar(x) == 0)))
+any_empty_strings
+
+# cleaning data (removing html tags using regexpr)
+articles_df <- articles_df %>% 
+  mutate(V3 = gsub("<.*?>", "", V3)) %>% 
+  # NAs
+  mutate(V1 = if_else(is.na(V1), "MISSING_TEXT", V1)) %>%  # Na handling
+  mutate(V2 = if_else(is.na(V2), "MISSING_TEXT", V2)) %>%  # Na handling
+  mutate(V3 = if_else(is.na(V3), "MISSING_TEXT", V3)) %>%  # Na handling
+  # empty stings
+  mutate(across(everything(), ~ if_else(.x == "", "MISSING_TEXT", .x), .names = 'new_{.col}'))
+
+# check for missing values and empty string (again)
+any(is.na(articles_df))
+any_empty_strings <- any(apply(articles_df, 1, function(x) any(nchar(x) == 0)))
+any_empty_strings
+# create corpus and inspect it
+myCorpus <- corpus(articles_df[1:200,], text_field = "V3") # include only 200 most relevant articles
+myCorpus <- corpus(myCorpus, docvars = select(articles_df[1:200,], V1:V3))
+
+myCorpus
+tok <- tokens(myCorpus , remove_punct = TRUE, 
+              remove_numbers=TRUE, 
+              remove_symbols = TRUE, 
+              split_hyphens = TRUE, 
+              remove_separators = TRUE)
+tok <- tokens_remove(tok, stopwords("en"))
+tok <- tokens_wordstem(tok)
+myDfm <- dfm(tok)
+trimdfm <- dfm_trim(myDfm, min_termfreq = 10)
+```
+
+```{r}
 # word cloud
 set.seed(100)
 textplot_wordcloud(trimdfm, min_count = 100, 
@@ -43,13 +81,17 @@ We can also see this in the form of frequency bars.
 # frequency bars
 library("quanteda.textstats")
 
+features_dfm <- textstat_frequency(trimdfm, n = 100)
+
+# Sort by reverse frequency order
+features_dfm$feature <- with(features_dfm, reorder(feature, -frequency))
+
 ggplot(features_dfm, aes(x = feature, y = frequency)) +
   geom_col(fill = "steelblue") + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(title = "Corpus Top 100 features",
        x = "Feature",
        y = "Frequency")
-
 ```
 This shows us, that a few relevant key words, such as "ai" and "chatgpt" appear more often than others, but doesn't tell us much else.
 For our goals more relevant are the "sentiment over time" and the "number of articles over time" plot.
@@ -59,6 +101,63 @@ library(tidyverse)
 library(quanteda)
 library(SentimentAnalysis)
 library(ggExtra)
+### sentiment analysis
+
+#load data
+load(here("AI_dfm_guardian.RData"))
+
+
+# accessing articles and dates in the dfm / convert date variable
+
+articles <- trimdfm@docvars$V3 # note the unusual indexing with @!
+
+dates <- trimdfm@docvars$V1
+
+df_ai <- data.frame(dates, articles)
+
+df_ai <- df_ai %>% 
+  mutate(dates = substr(dates, 1, 10)) %>% 
+  mutate(dates = as.Date(dates))
+
+# check class of dates
+class(df_ai$dates[1])
+
+
+
+# load LSD dictionary from quanteda package
+LSD_dict <- SentimentDictionaryBinary(data_dictionary_LSD2015$positive, data_dictionary_LSD2015$negative)
+
+
+# analyze headline sentiment using LSD dictionary (using SentimentAnalysis package)
+sentiment <- analyzeSentiment(df_ai$articles, removeStopwords = T, stemming = T,
+                              rules=list("Sentiment"=list(ruleSentimentPolarity, # Sentiment score defined as the difference between positive and negative word counts divided by the sum of positive and negative words.
+                                                          LSD_dict)))
+
+# add sentinemt to df
+df_ai <- data.frame(df_ai, sentiment)
+
+
+# add column to show week number
+df_ai$week_num <- strftime(df_ai$dates, format = "%V")
+
+
+# group by week and calculate mean of sentiment score
+mean_sentiment <- df_ai %>% 
+  group_by(week_num) %>% 
+  summarise(mean_sent = mean(Sentiment, na.rm = T))
+
+
+# order weeks correctly
+mean_sentiment$week_num <- as.numeric(mean_sentiment$week_num)
+class(mean_sentiment$week_num[1])
+
+mean_sentiment$week_num <- factor(mean_sentiment$week_num,levels = c(seq(35,52), seq(1,16)))
+
+```
+
+```{r}
+
+
 # plot sentiment over time
 ggplot(mean_sentiment) +
   geom_col(mapping = aes(x=week_num,y=mean_sent), fill = "steelblue") +
@@ -66,7 +165,16 @@ ggplot(mean_sentiment) +
        x = "Week code",
        y = "Sentiment Score")
 ```
+
 ```{r}
+### frequency analysis
+
+# count articles over time (order weeks correctly in a first step)
+df_ai$week_num <- as.numeric(df_ai$week_num)
+df_ai$week_num <- factor(df_ai$week_num,levels = c(seq(35,52), seq(1,16)))
+
+table_count <- table(df_ai$week_num)
+
 # plot number of articles over time
 plotCount(table_count, fill = "steelblue") +
   labs(title = "Frequency of Coverage about AI from September 2022 to April 2023",
