@@ -18,6 +18,10 @@ Our goal is
 1) To show how sentiment towards AI has shifted in press outlets from September 2022 to April 2023
 2) To show how the frequency of press coverage of AI has changed over that same time period
 
+Our hypothesis is that 
+a) Overall sentiment of press coverage on AI will be mixed.
+b) Frequency of press coverage on AI will increase over time.
+
 ## 2. Method
 We set out to answer these two questions by first doing a sentiment analysis and secondly by doing a frequency analysis.
 But how do we get there?
@@ -69,4 +73,8 @@ plotCount(table_count, fill = "steelblue") +
        x = "Week code",
        y = "Number of Articles")
 ```
-From the first plot we can infer that overall sentiment of press coverage towards AI is positive with a few exceptions. And the second plot shows the AI topic got persistently more and more press coverage.
+From the first plot we can infer that overall sentiment of press coverage towards AI is positive with a few exceptions. And the second plot shows that over time the AI topic got persistently more and more press coverage.
+
+## 4. Discussion
+As we expected the AI topic got more and more press coverage over time, as public interest on the topic increased. The biggest spike in interest and press coverage coincides with the public release of OpenAI ChatGPT 3.0, as large portions of the public began to realize for the first time how much disruptional potential this technology had.
+What we didn't expect, was that overall sentiment scores on AI would be largely positive. We believed the topic to be polarizing, exciting some, while frightening others, and therefore resulting in a mixed sentiment score. However, if the graph is to be believed, overall sentiment on the AI topic in the press is slightly positive.
