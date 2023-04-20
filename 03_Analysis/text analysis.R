@@ -1,7 +1,12 @@
+#install.packages("ggExtra")
+library(here)
 library(tidyverse)
 library(quanteda)
 library(SentimentAnalysis)
-# sentiment analysis
+library(ggExtra)
+
+
+### sentiment analysis
 
 #load data
 load(here("AI_dfm_guardian.RData"))
@@ -30,7 +35,7 @@ LSD_dict <- SentimentDictionaryBinary(data_dictionary_LSD2015$positive, data_dic
 
 # analyze headline sentiment using LSD dictionary (using SentimentAnalysis package)
 sentiment <- analyzeSentiment(df_ai$articles, removeStopwords = T, stemming = T,
-                              rules=list("Sentiment"=list(ruleSentimentPolarity,
+                              rules=list("Sentiment"=list(ruleSentimentPolarity, # Sentiment score defined as the difference between positive and negative word counts divided by the sum of positive and negative words.
                                                           LSD_dict)))
 
 # add sentinemt to df
@@ -60,6 +65,28 @@ ggplot(mean_sentiment) +
   labs(title = "Sentiment of Coverage about AI from September 2022 to April 2023",
        x = "Week code",
        y = "Sentiment Score")
+
+
+### frequency analysis
+
+# count articles over time (order weeks correctly in a first step)
+df_ai$week_num <- as.numeric(df_ai$week_num)
+df_ai$week_num <- factor(df_ai$week_num,levels = c(seq(35,52), seq(1,16)))
+
+table_count <- table(df_ai$week_num)
+
+# plot number of articles over time
+plotCount(table_count, fill = "steelblue") +
+  labs(title = "Frequency of Coverage about AI from September 2022 to April 2023",
+       x = "Week code",
+       y = "Number of Articles")
+
+
+
+
+
+
+
 
 
 
