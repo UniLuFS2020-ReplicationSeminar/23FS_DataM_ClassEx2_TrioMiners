@@ -91,5 +91,22 @@ plotCount(table_count, fill = "steelblue") +
 
 
 
+### frequency analysis
+
+# count articles over time (order weeks correctly in a first step)
+df_ai$week_num <- as.numeric(df_ai$week_num)
+df_ai$week_num <- factor(df_ai$week_num,levels = c(seq(35,52), seq(1,16)))
+
+table_count <- table(df_ai$week_num)
+
+# plot number of articles over time
+plotCount(table_count, fill = "steelblue") +
+  labs(title = "Frequency of Coverage about AI from September 2022 to April 2023",
+       x = "Week code",
+       y = "Number of Articles")
+
+
+
+
 
                               
